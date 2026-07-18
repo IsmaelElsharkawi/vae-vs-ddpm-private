@@ -35,6 +35,7 @@ def train(args):
 
             optimizer.zero_grad()
             total.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
             optimizer.step()
 
             running["total"] += total.item()
@@ -64,7 +65,8 @@ def parse_args():
     p.add_argument("--output-dir", default="./outputs/vae")
     p.add_argument("--epochs", type=int, default=100)
     p.add_argument("--batch-size", type=int, default=512)
-    p.add_argument("--lr", type=float, default=4e-3)
+    p.add_argument("--lr", type=float, default=1e-3)
+    p.add_argument("--grad-clip", type=float, default=1.0)
     p.add_argument("--latent-dim", type=int, default=256)
     p.add_argument("--num-workers", type=int, default=4)
     p.add_argument("--sample-every", type=int, default=10)

@@ -31,8 +31,9 @@ model checkpoint to `outputs/vae/vae.pt`.
 | `--output-dir` | `./outputs/vae` | Checkpoints and sample grids. |
 | `--epochs` | `100` | Number of training epochs. |
 | `--batch-size` | `512` | Mini-batch size. |
-| `--lr` | `4e-3` | Adam learning rate. |
+| `--lr` | `1e-3` | Adam learning rate. |
 | `--latent-dim` | `256` | Dimensionality of the latent space. |
+| `--grad-clip` | `1.0` | Max global grad norm (clipping). |
 | `--num-workers` | `4` | DataLoader worker processes. |
 | `--sample-every` | `10` | Save a sample grid every N epochs. |
 | `--seed` | `0` | Random seed. |
