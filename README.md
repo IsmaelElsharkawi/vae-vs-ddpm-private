@@ -30,8 +30,8 @@ model checkpoint to `outputs/vae/vae.pt`.
 | `--data-root` | `./data` | Where CIFAR-10 is stored/downloaded. |
 | `--output-dir` | `./outputs/vae` | Checkpoints and sample grids. |
 | `--epochs` | `100` | Number of training epochs. |
-| `--batch-size` | `128` | Mini-batch size. |
-| `--lr` | `1e-3` | Adam learning rate. |
+| `--batch-size` | `512` | Mini-batch size. |
+| `--lr` | `4e-3` | Adam learning rate. |
 | `--latent-dim` | `256` | Dimensionality of the latent space. |
 | `--num-workers` | `4` | DataLoader worker processes. |
 | `--sample-every` | `10` | Save a sample grid every N epochs. |
