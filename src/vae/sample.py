@@ -43,7 +43,7 @@ def parse_args():
     p.add_argument("--samples-dir", default="./outputs/vae/samples")
     p.add_argument("--num-samples", type=int, default=10000)
     p.add_argument("--batch-size", type=int, default=128)
-    p.add_argument("--latent-dim", type=int, default=128)
+    p.add_argument("--latent-dim", type=int, default=256)
     return p.parse_args()
 
 

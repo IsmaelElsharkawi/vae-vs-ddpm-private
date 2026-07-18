@@ -32,7 +32,7 @@ model checkpoint to `outputs/vae/vae.pt`.
 | `--epochs` | `100` | Number of training epochs. |
 | `--batch-size` | `128` | Mini-batch size. |
 | `--lr` | `1e-3` | Adam learning rate. |
-| `--latent-dim` | `128` | Dimensionality of the latent space. |
+| `--latent-dim` | `256` | Dimensionality of the latent space. |
 | `--num-workers` | `4` | DataLoader worker processes. |
 | `--sample-every` | `10` | Save a sample grid every N epochs. |
 | `--seed` | `0` | Random seed. |
@@ -69,7 +69,7 @@ This produces:
 | `--samples-dir` | `./outputs/vae/samples` | Where individual PNGs are written. |
 | `--num-samples` | `10000` | Number of images to export. |
 | `--batch-size` | `128` | Sampling batch size. |
-| `--latent-dim` | `128` | Must match the value used during training. |
+| `--latent-dim` | `256` | Must match the value used during training. |
 
 > Note: `--latent-dim` at inference must match the value used at training time,
 > otherwise the checkpoint will fail to load.
@@ -79,3 +79,40 @@ Example generating a smaller set:
 ```bash
 python -m src.vae.sample --checkpoint outputs/vae/vae.pt --num-samples 1000
 ```
+
+## Evaluation (FID & Inception Score)
+
+The `src.eval` package is model-agnostic: it scores any directory of generated
+images, so it works for both the VAE and the (future) DDPM. It reports **FID**
+(against a reference set) and the **Inception Score**, both computed via
+`torchmetrics`.
+
+```bash
+# FID against the CIFAR-10 train split + Inception Score.
+python -m src.eval.evaluate --generated-dir outputs/vae/samples
+```
+
+By default the FID reference is the CIFAR-10 training split (the standard,
+comparable choice for CIFAR-10). To compare against your own reference images
+instead, pass a directory:
+
+```bash
+python -m src.eval.evaluate \
+    --generated-dir outputs/ddpm/samples \
+    --reference-dir data/real_images
+```
+
+### Evaluation options
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--generated-dir` | *(required)* | Directory of generated images to score. |
+| `--reference-dir` | `None` | Reference images for FID. Falls back to CIFAR-10 train if omitted. |
+| `--data-root` | `./data` | Where CIFAR-10 is stored/downloaded. |
+| `--batch-size` | `64` | Inception batch size. |
+| `--num-workers` | `4` | DataLoader worker processes. |
+| `--is-splits` | `10` | Number of splits for the Inception Score std. |
+
+> For results comparable to the literature, generate ~50k samples
+> (`--num-samples 50000`) and evaluate against the CIFAR-10 train split.
+
