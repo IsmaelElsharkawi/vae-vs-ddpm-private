@@ -1,7 +1,7 @@
 # VAE vs DDPM
 
 Variational Autoencoder (VAE) and DDPM implemented from scratch and
-trained on CIFAR-10.
+trained on MNIST.
 
 ## Setup
 
@@ -9,7 +9,8 @@ trained on CIFAR-10.
 pip install -r requirements.txt
 ```
 
-CIFAR-10 is downloaded automatically to `./data` on first run.
+MNIST is downloaded automatically to `./data` on first run. Images are
+grayscale and resized to 32x32.
 
 ## Training
 
@@ -27,7 +28,7 @@ model checkpoint to `outputs/vae/vae.pt`.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--data-root` | `./data` | Where CIFAR-10 is stored/downloaded. |
+| `--data-root` | `./data` | Where MNIST is stored/downloaded. |
 | `--output-dir` | `./outputs/vae` | Checkpoints and sample grids. |
 | `--epochs` | `100` | Number of training epochs. |
 | `--batch-size` | `512` | Mini-batch size. |
@@ -89,13 +90,12 @@ images, so it works for both the VAE and the (future) DDPM. It reports **FID**
 `torchmetrics`.
 
 ```bash
-# FID against the CIFAR-10 train split + Inception Score.
+# FID against the MNIST train split + Inception Score.
 python -m src.eval.evaluate --generated-dir outputs/vae/samples
 ```
 
-By default the FID reference is the CIFAR-10 training split (the standard,
-comparable choice for CIFAR-10). To compare against your own reference images
-instead, pass a directory:
+By default the FID reference is the MNIST training split. To compare against
+your own reference images instead, pass a directory:
 
 ```bash
 python -m src.eval.evaluate \
@@ -108,19 +108,19 @@ python -m src.eval.evaluate \
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--generated-dir` | *(required)* | Directory of generated images to score. |
-| `--reference-dir` | `None` | Reference images for FID. Falls back to CIFAR-10 train if omitted. |
-| `--data-root` | `./data` | Where CIFAR-10 is stored/downloaded. |
+| `--reference-dir` | `None` | Reference images for FID. Falls back to MNIST train if omitted. |
+| `--data-root` | `./data` | Where MNIST is stored/downloaded. |
 | `--batch-size` | `64` | Inception batch size. |
 | `--num-workers` | `4` | DataLoader worker processes. |
 | `--is-splits` | `10` | Number of splits for the Inception Score std. |
 
 > For results comparable to the literature, generate ~50k samples
-> (`--num-samples 50000`) and evaluate against the CIFAR-10 train split.
+> (`--num-samples 50000`) and evaluate against the MNIST train split.
 
 ## DDPM
 
 A Denoising Diffusion Probabilistic Model (DDPM) with a small time-conditioned
-U-Net and a linear noise schedule, trained on the same CIFAR-10 pipeline as the
+U-Net and a linear noise schedule, trained on the same MNIST pipeline as the
 VAE.
 
 ### Training
@@ -135,7 +135,7 @@ written to `outputs/ddpm/ddpm.pt`.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--data-root` | `./data` | Where CIFAR-10 is stored/downloaded. |
+| `--data-root` | `./data` | Where MNIST is stored/downloaded. |
 | `--output-dir` | `./outputs/ddpm` | Checkpoints and sample grids. |
 | `--epochs` | `100` | Number of training epochs. |
 | `--batch-size` | `128` | Mini-batch size. |

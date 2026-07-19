@@ -4,6 +4,7 @@ import os
 import torch
 from torchvision.utils import save_image
 
+from src.common.data import CHANNELS
 from src.common.utils import denormalize, get_device, save_grid
 from src.ddpm.diffusion import GaussianDiffusion
 from src.ddpm.model import UNet
@@ -12,14 +13,14 @@ from src.ddpm.model import UNet
 def sample(args):
     device = get_device()
 
-    model = UNet().to(device)
+    model = UNet(in_ch=CHANNELS).to(device)
     model.load_state_dict(torch.load(args.checkpoint, map_location=device))
     model.eval()
 
     diffusion = GaussianDiffusion(timesteps=args.timesteps, device=device)
 
     # Grid preview.
-    grid = diffusion.sample(model, 64, device)
+    grid = diffusion.sample(model, 64, device, channels=CHANNELS)
     save_grid(grid, os.path.join(args.output_dir, "sample_grid.png"))
 
     # Bulk export for FID / IS.
@@ -28,7 +29,8 @@ def sample(args):
     idx = 0
     while remaining > 0:
         n = min(args.batch_size, remaining)
-        imgs = denormalize(diffusion.sample(model, n, device))
+        imgs = denormalize(diffusion.sample(model, n, device,
+                                            channels=CHANNELS))
         for i in range(n):
             save_image(imgs[i],
                        os.path.join(args.samples_dir, f"{idx:05d}.png"))

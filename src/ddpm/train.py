@@ -4,7 +4,7 @@ import os
 import torch
 from tqdm import tqdm
 
-from src.common.data import get_cifar10_loaders
+from src.common.data import CHANNELS, get_mnist_loaders
 from src.common.utils import get_device, save_grid, set_seed
 from src.ddpm.diffusion import GaussianDiffusion
 from src.ddpm.model import UNet
@@ -15,10 +15,10 @@ def train(args):
     device = get_device()
     print(f"[train] device = {device}")
 
-    train_loader, _ = get_cifar10_loaders(
+    train_loader, _ = get_mnist_loaders(
         args.data_root, args.batch_size, args.num_workers)
 
-    model = UNet().to(device)
+    model = UNet(in_ch=CHANNELS).to(device)
     diffusion = GaussianDiffusion(timesteps=args.timesteps, device=device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
@@ -46,7 +46,7 @@ def train(args):
 
         if epoch % args.sample_every == 0 or epoch == args.epochs:
             model.eval()
-            samples = diffusion.sample(model, 64, device)
+            samples = diffusion.sample(model, 64, device, channels=CHANNELS)
             save_grid(samples, os.path.join(
                 args.output_dir, f"samples_epoch{epoch}.png"))
 

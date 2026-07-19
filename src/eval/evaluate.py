@@ -2,10 +2,10 @@
 
 Computes FID and Inception Score for a directory of generated images using
 ``torchmetrics``. The FID reference can be either another image directory or
-the CIFAR-10 training split.
+the MNIST training split.
 
 Examples:
-    # FID against CIFAR-10 train split + Inception Score.
+    # FID against MNIST train split + Inception Score.
     python -m src.eval.evaluate --generated-dir outputs/vae/samples
 
     # FID against a custom reference directory.
@@ -47,13 +47,21 @@ class ImageFolderDataset(Dataset):
         return self.to_tensor(img)
 
 
-class _CIFAR10Images(Dataset):
-    """CIFAR-10 images in ``[0, 1]`` (no normalization) for reference stats."""
+class _MNISTImages(Dataset):
+    """MNIST images as 3-channel ``[0, 1]`` tensors (32x32).
+
+    The grayscale channel is expanded to 3 channels so the images can be fed
+    to the Inception network used by FID.
+    """
 
     def __init__(self, data_root, train=True):
-        self.dataset = datasets.CIFAR10(
-            data_root, train=train, download=True,
-            transform=transforms.ToTensor())
+        tf = transforms.Compose([
+            transforms.Resize(32),
+            transforms.ToTensor(),
+            transforms.Lambda(lambda x: x.expand(3, -1, -1)),
+        ])
+        self.dataset = datasets.MNIST(
+            data_root, train=train, download=True, transform=tf)
 
     def __len__(self):
         return len(self.dataset)
@@ -90,8 +98,8 @@ def evaluate(args):
         ref_ds = ImageFolderDataset(args.reference_dir)
         ref_desc = f"reference '{args.reference_dir}'"
     else:
-        ref_ds = _CIFAR10Images(args.data_root, train=True)
-        ref_desc = "reference CIFAR-10 train"
+        ref_ds = _MNISTImages(args.data_root, train=True)
+        ref_desc = "reference MNIST train"
     print(f"[eval] Computing reference statistics over "
           f"{len(ref_ds)} images ({ref_desc}).")
     for batch in tqdm(_loader(ref_ds, args.batch_size, args.num_workers),
@@ -114,9 +122,9 @@ def parse_args():
                    help="Directory of generated images to score.")
     p.add_argument("--reference-dir", default=None,
                    help="Reference image directory for FID. If omitted, the "
-                        "CIFAR-10 train split is used.")
+                        "MNIST train split is used.")
     p.add_argument("--data-root", default="./data",
-                   help="Where CIFAR-10 is stored/downloaded.")
+                   help="Where MNIST is stored/downloaded.")
     p.add_argument("--batch-size", type=int, default=64)
     p.add_argument("--num-workers", type=int, default=4)
     p.add_argument("--is-splits", type=int, default=10,

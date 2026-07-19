@@ -4,7 +4,7 @@ import os
 import torch
 from tqdm import tqdm
 
-from src.common.data import get_cifar10_loaders
+from src.common.data import get_mnist_loaders
 from src.common.utils import get_device, save_grid, set_seed
 from src.vae.loss import vae_loss
 from src.vae.model import VAE
@@ -14,7 +14,7 @@ def train(args):
     set_seed(args.seed)
     device = get_device()
 
-    train_loader, _ = get_cifar10_loaders(
+    train_loader, _ = get_mnist_loaders(
         args.data_root, args.batch_size, args.num_workers)
 
     model = VAE(latent_dim=args.latent_dim).to(device)
